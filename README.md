@@ -55,6 +55,14 @@ I designed and built an event driven Medallion Data Lakehouse on AWS using Pytho
 
 * **Low Cost Interactive Analytics:** Isolated dashboard user queries from raw data files by powering Amazon QuickSight dashboards through the SPICE in memory calculation engine.
 
+[![Watch Demo](https://img.shields.io/badge/▶️_Watch_the_B2B_QuickSight_Dashboard_Video_Demo-94f2a8?style=for-the-badge)](https://youtu.be/aFxhm_Saku0)
+
+<p align="center">
+  <a href="https://youtu.be/aFxhm_Saku0" target="_blank">
+    <img src="https://img.youtube.com/vi/aFxhm_Saku0/maxresdefault.jpg" alt="B2B QuickSight Dashboard Demo" width="100%" />
+  </a>
+</p>
+
 ---
 
 ## Architecture & Data Flow
@@ -135,14 +143,6 @@ AWS Glue catalogs the Silver Parquet datasets into 5 base tables in Athena. To n
 
 ### QuickSight Reporting
 Amazon QuickSight connects to the Gold Athena SQL views through the SPICE in memory calculation engine on a periodic refresh schedule. This isolates dashboard user traffic when filtering bar charts, cost trends, and compliance metrics from executing live S3 queries in Athena, keeping query costs low and load times fast.
-
-[![Watch Demo](https://img.shields.io/badge/▶️_Watch_the_B2B_QuickSight_Dashboard_Video_Demo-94f2a8?style=for-the-badge)](https://youtu.be/aFxhm_Saku0)
-
-<p align="center">
-  <a href="https://youtu.be/aFxhm_Saku0" target="_blank">
-    <img src="https://img.youtube.com/vi/aFxhm_Saku0/maxresdefault.jpg" alt="B2B QuickSight Dashboard Demo" width="100%" />
-  </a>
-</p>
 
 ---
 
