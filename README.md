@@ -50,6 +50,8 @@ I built an event driven Medallion Data Lakehouse on AWS using Python 3.13, Docke
 
 * **Regulatory Data Extraction:** Used Claude Haiku on Amazon Bedrock to extract compliance-related information from unstructured field notes, including pressure test results and regulatory values.
 
+* **Interactive BI Reporting:** Delivered QuickSight dashboards powered by Athena and SPICE, allowing project managers to explore portfolio trends without manually opening individual files.
+
 <p align="center">
   <a href="https://youtu.be/aFxhm_Saku0">
     <img src="https://img.shields.io/badge/▶️_Watch_the_B2B_QuickSight_Dashboard_Video_Demo-94f2a8?style=for-the-badge" alt="Watch Demo">
