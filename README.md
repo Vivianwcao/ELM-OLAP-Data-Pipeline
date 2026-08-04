@@ -40,7 +40,7 @@ Answering these questions meant opening hundreds of workbooks one at a time, whi
 
 ---
 
-## Solution & Results
+## Business Solution & Results
 
 I built an event driven Medallion Data Lakehouse on AWS using Python 3.13, Docker, and AWS SAM. The pipeline automatically ingests Excel workbooks from Google Drive, parses visual spreadsheet layouts with `openpyxl`, extracts engineering context using Claude Haiku on Amazon Bedrock, and loads clean Parquet datasets into Athena for reporting in QuickSight.
 
@@ -64,7 +64,7 @@ I built an event driven Medallion Data Lakehouse on AWS using Python 3.13, Docke
 
 ---
 
-## Architecture & Data Flow
+## Technical Architecture & Data Flow
 
 The pipeline receives workbooks from Google Drive via AppFlow, processes raw files through serverless parsing layers, enriches unstructured text using Bedrock, and loads clean Parquet datasets into Athena for QuickSight visualization.
 
