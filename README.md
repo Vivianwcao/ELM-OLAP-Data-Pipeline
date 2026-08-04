@@ -16,7 +16,13 @@
 
 ## Background
 
-ELM manages well abandonment projects in Alberta for several major oil and gas buyers, including companies like Harvest Operations. For every job, ELM coordinates field contractors, tracks daily operational costs, and generates final invoice packages. Over four years, field supervisors created more than 750 Excel workbooks, each representing a single well abandonment project. The files were stored individually in a shared Google Drive folder.
+### Background
+
+ELM manages well abandonment projects in Alberta for major oil and gas buyers, including companies such as Harvest Operations. Each well abandonment project is documented in a dedicated Excel workbook that serves as the project's primary operational record.
+
+Over four years, field supervisors created more than 750 workbooks, with each workbook representing one well abandonment project. The workbooks were stored individually in a shared Google Drive folder.
+
+Each workbook contains multiple tabs covering different aspects of the project, including contractor costs, daily field activities, equipment and material usage, fluid tracking, regulatory information, plug and cement details, engineering notes, and project completion status. Together, these workbooks contain the complete operational history of each well abandonment project.
 
 ## Business Problem
 
@@ -44,13 +50,13 @@ I built an event driven Medallion Data Lakehouse on AWS using Python 3.13, Docke
 
 ### Key Results
 
-* **Portfolio-Wide Reporting:** Consolidated 750+ individual Excel workbooks into a centralized analytics platform, allowing ELM to analyze costs, contractors, compliance metrics, and completion status across all projects.
+* **Portfolio-Wide Analytics:** Consolidated more than 750 individual project workbooks into a centralized analytics platform, allowing project managers to analyze costs, contractors, regulatory compliance, and project status across the entire portfolio instead of reviewing one workbook at a time.
 
-* **Budget and Cost Analysis:** Enabled reporting that compares actual project spending against original AFE budgets across contractors and wells.
+* **Five Interactive Dashboard Views:** Built five QuickSight dashboards with charts, tables, and filters that provide visibility into contractor costs, budget performance, well activities, material movements, fluid usage, and regulatory compliance.
 
-* **Regulatory Data Extraction:** Used Claude Haiku on Amazon Bedrock to extract compliance-related information from unstructured field notes, including pressure test results and regulatory values.
+* **Operational Data from Engineering Notes:** Used Claude Haiku on Amazon Bedrock to convert free-text engineering notes into structured analytical fields, including pressure test outcomes, plug information, cement operations, regulatory identifiers, and other operational events that could be queried alongside structured workbook data.
 
-* **Interactive BI Reporting:** Delivered QuickSight dashboards powered by Athena and SPICE, allowing project managers to explore portfolio trends without manually opening individual files.
+* **Budget and Cost Reporting:** Enabled project managers to compare actual project spending against original AFE budgets across wells and contractors to support planning and cost analysis.
 
 <p align="center">
   <a href="https://youtu.be/aFxhm_Saku0">
