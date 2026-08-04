@@ -15,8 +15,6 @@
 
 ## Background
 
-### Background
-
 ELM manages well abandonment projects in Alberta for major oil and gas buyers, including companies such as Harvest Operations. Each well abandonment project is documented in a dedicated Excel workbook that serves as the project's primary operational record.
 
 Over four years, field supervisors created more than 750 workbooks, with each workbook representing one well abandonment project. The workbooks were stored individually in a shared Google Drive folder.
