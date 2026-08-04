@@ -1,5 +1,4 @@
-# Automated Well Abandonment OLAP Data Pipeline
-## Serverless Data Lakehouse Architecture for Operational Analytics
+# Serverless Data Lakehouse Architecture for Operational Analytics
 
 ### Tech Stack & Tools
 * **Compute & Infrastructure:** AWS Lambda (Python 3.13), AWS SAM (YAML), Docker (`sam build --use-container`), AWS AppFlow, Amazon EventBridge, Amazon SQS
