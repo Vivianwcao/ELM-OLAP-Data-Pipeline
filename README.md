@@ -66,7 +66,7 @@ I built an event driven Medallion Data Lakehouse on AWS using Python 3.13, Docke
 
 <p align="center">
   <a href="https://youtu.be/aFxhm_Saku0" target="_blank">
-    <img src="https://img.youtube.com/vi/aFxhm_Saku0/maxresdefault.jpg" alt="B2B QuickSight Dashboard Demo" width="70%" />
+    <img src="https://img.youtube.com/vi/aFxhm_Saku0/maxresdefault.jpg" alt="B2B QuickSight Dashboard Demo" width="80%" />
   </a>
 </p>
 
@@ -77,7 +77,7 @@ I built an event driven Medallion Data Lakehouse on AWS using Python 3.13, Docke
 The pipeline receives workbooks from Google Drive via AppFlow, processes raw files through serverless parsing layers, enriches unstructured text using Bedrock, and loads clean Parquet datasets into Athena for QuickSight visualization.
 
 <div align="center">
-  <img width="70%" alt="well_abandonment_pipeline_v4" src="https://github.com/user-attachments/assets/d15550a8-3c47-4521-9726-95a9ce8b0820" />
+  <img width="80%" alt="well_abandonment_pipeline_v4" src="https://github.com/user-attachments/assets/d15550a8-3c47-4521-9726-95a9ce8b0820" />
 </div>
 
 ### Medallion Data Processing Stages
