@@ -14,29 +14,27 @@
 
 ---
 
-## Background & Business Problem
+## Background
 
 ELM manages well abandonment projects in Alberta for several major oil and gas buyers, including companies like Harvest Operations. For every job, ELM coordinates field contractors, tracks daily operational costs, and generates final invoice packages. Over four years, field supervisors created more than 750 Excel workbooks, each representing a single well abandonment project. The files were stored individually in a shared Google Drive folder.
 
-Extracting value from this dataset presented three core challenges:
+## Business Problem
 
-1. **Visual form layouts instead of standard spreadsheets:** The workbooks were designed as multi page forms rather than traditional spreadsheets. Data was scattered across merged cells, labels, and fixed form layouts, so extracting it required cell level parsing instead of reading rows and columns.
+Before this project, ELM could review individual well records by opening each Excel workbook manually, but they did not have a centralized view across their entire project portfolio.
 
-2. **Dirty and inconsistent human entries:** Because the files were filled out by hand by different operators across different sites over four years, the data entries were messy, inconsistent, and full of small human variations. Important information could not simply be pulled and used directly for analysis.
+The business needed answers to questions such as:
 
-3. **No portfolio level reporting:** A project manager could open a single file to check one well, but answering bigger questions across the entire portfolio of 750 abandoned wells was extremely difficult:
+1. Which wells exceeded their Authorization for Expenditure (AFE) budget, and by how much?
 
-* Which wells exceeded their Authorization for Expenditure budget, and by how much?
+2. What was the total cost by contractor across all completed projects?
 
-* What was the total spend per contractor across all jobs?
+3. How many wells encountered regulatory issues such as failed pressure tests, leaky casing, or parted tubing?
 
-* How many wells encountered regulatory issues like failed pressure tests, leaky casing, or parted tubing?
+4. What were the average operational requirements across projects, such as plug counts, depths, and material usage?
 
-* How many plugs were set across the portfolio, at what depths, and did they pass compliance checks?
+5. Which wells were completed, and which still had outstanding work?
 
-* Which wells were completed versus those with outstanding work?
-
-Answering these questions meant opening hundreds of workbooks one at a time, which was not practical. ELM needed a way to consolidate the data into a searchable dataset so project managers could compare budgets, contractor costs, operational issues, and well completion status across the entire portfolio.
+Opening and comparing hundreds of workbooks manually was not practical. ELM needed a reporting system that could continuously consolidate new project files and provide portfolio-level analytics for budgeting, cost tracking, contractor evaluation, and future project planning.
 
 ---
 
@@ -46,19 +44,21 @@ I built an event driven Medallion Data Lakehouse on AWS using Python 3.13, Docke
 
 ### Key Results
 
-* **Complete Portfolio Visibility:** Transformed 750 isolated Excel files into a centralized OLAP data lakehouse, enabling instant portfolio wide cost and regulatory reporting.
+* **Portfolio-Wide Reporting:** Consolidated 750+ individual Excel workbooks into a centralized analytics platform, allowing ELM to analyze costs, contractors, compliance metrics, and completion status across all projects.
 
-* **Budget vs Actual Cost Reporting:** Enabled precise tracking of actual spend versus original authorization budgets across all contractors, protecting ELM's management fee justification.
+* **Budget and Cost Analysis:** Enabled reporting that compares actual project spending against original AFE budgets across contractors and wells.
 
-* **AI Powered Compliance Extraction:** Extracted critical downhole pressure test outcomes and regulatory numbers from unstructured daily field notes using Claude Haiku on AWS Bedrock.
+* **Regulatory Data Extraction:** Used Claude Haiku on Amazon Bedrock to extract compliance-related information from unstructured field notes, including pressure test results and regulatory values.
 
-* **Low Cost Interactive Analytics:** Isolated dashboard user queries from raw data files by powering Amazon QuickSight dashboards through the SPICE in memory calculation engine.
-
-[![Watch Demo](https://img.shields.io/badge/▶️_Watch_the_B2B_QuickSight_Dashboard_Video_Demo-94f2a8?style=for-the-badge)](https://youtu.be/aFxhm_Saku0)
+<p align="center">
+  <a href="https://youtu.be/aFxhm_Saku0">
+    <img src="https://img.shields.io/badge/▶️_Watch_the_B2B_QuickSight_Dashboard_Video_Demo-94f2a8?style=for-the-badge" alt="Watch Demo">
+  </a>
+</p>
 
 <p align="center">
   <a href="https://youtu.be/aFxhm_Saku0" target="_blank">
-    <img src="https://img.youtube.com/vi/aFxhm_Saku0/maxresdefault.jpg" alt="B2B QuickSight Dashboard Demo" width="100%" />
+    <img src="https://img.youtube.com/vi/aFxhm_Saku0/maxresdefault.jpg" alt="B2B QuickSight Dashboard Demo" width="70%" />
   </a>
 </p>
 
@@ -68,7 +68,9 @@ I built an event driven Medallion Data Lakehouse on AWS using Python 3.13, Docke
 
 The pipeline receives workbooks from Google Drive via AppFlow, processes raw files through serverless parsing layers, enriches unstructured text using Bedrock, and loads clean Parquet datasets into Athena for QuickSight visualization.
 
-<img width="2720" height="2640" alt="well_abandonment_pipeline_v4" src="https://github.com/user-attachments/assets/d15550a8-3c47-4521-9726-95a9ce8b0820" />
+<div align="center">
+  <img width="70%" alt="well_abandonment_pipeline_v4" src="https://github.com/user-attachments/assets/d15550a8-3c47-4521-9726-95a9ce8b0820" />
+</div>
 
 ### Medallion Data Processing Stages
 
@@ -83,6 +85,7 @@ The pipeline receives workbooks from Google Drive via AppFlow, processes raw fil
 ---
 
 ## Engineering Challenges & Solutions
+Turning these workbooks into a usable analytics dataset required solving several engineering challenges:
 
 ### 1. The files are visual forms rather than structured spreadsheets
 * **The Challenge:** Field supervisors used Excel as a printed form layout tool rather than a database. Workbooks were built with merged cells, hand aligned labels, and tables that started at different row offsets depending on how much notes the previous supervisor typed. Each workbook contained six tabs, and small layout differences accumulated over four years as different contractors filled them out. Standard tools like `pandas.read_excel()` broke almost immediately.
