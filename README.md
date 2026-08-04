@@ -16,15 +16,15 @@
 
 ## Background & Business Problem
 
-ELM manages well abandonment projects in Alberta for several major oil and gas buyers, including companies like Harvest Operations. For every job, ELM coordinates field contractors, tracks daily operational costs, and generates final invoice packages. Over four years of operations, field operators across various job sites filled out more than 750 isolated Excel workbooks, all stored in a shared Google Drive folder.
+ELM manages well abandonment projects in Alberta for several major oil and gas buyers, including companies like Harvest Operations. For every job, ELM coordinates field contractors, tracks daily operational costs, and generates final invoice packages. Over four years, field supervisors created more than 750 Excel workbooks, each representing a single well abandonment project. The files were stored individually in a shared Google Drive folder.
 
 Extracting value from this dataset presented three core challenges:
 
-1. **Visual form layouts instead of standard spreadsheets:** The workbooks were not built as standard tabular spreadsheets. Instead, they were designed like multi page forms complete with custom formatting, logos, and visual layouts. Extracting information required precise, cell level coordinate parsing.
+1. **Visual form layouts instead of standard spreadsheets:** The workbooks were designed as multi page forms rather than traditional spreadsheets. Data was scattered across merged cells, labels, and fixed form layouts, so extracting it required cell level parsing instead of reading rows and columns.
 
 2. **Dirty and inconsistent human entries:** Because the files were filled out by hand by different operators across different sites over four years, the data entries were messy, inconsistent, and full of small human variations. Important information could not simply be pulled and used directly for analysis.
 
-3. **Zero cross job portfolio visibility:** A project manager could open a single file to check one well, but answering bigger questions across the entire portfolio of 750 abandoned wells was extremely difficult:
+3. **No portfolio level reporting:** A project manager could open a single file to check one well, but answering bigger questions across the entire portfolio of 750 abandoned wells was extremely difficult:
 
 * Which wells exceeded their Authorization for Expenditure budget, and by how much?
 
@@ -36,20 +36,19 @@ Extracting value from this dataset presented three core challenges:
 
 * Which wells were completed versus those with outstanding work?
 
-To answer these questions and perform proper OLAP analysis across this dataset, opening 750 spreadsheets one by one by hand was functionally impossible. A scalable analysis process was therefore required to consolidate the data into reports comparing actual costs with original budgets and providing contractor-level breakdowns. These reports allow ELM to evaluate performance across wells, identify cost and operational trends, and make better business decisions that affect job profitability and future planning. They also provide buyers such as Harvest Operations with transparent project reporting, helping demonstrate the value of ELM's services and justify its management fee on each job.
-
+Answering these questions meant opening hundreds of workbooks one at a time, which was not practical. ELM needed a way to consolidate the data into a searchable dataset so project managers could compare budgets, contractor costs, operational issues, and well completion status across the entire portfolio.
 
 ---
 
 ## Solution & Results
 
-I designed and built an event driven Medallion Data Lakehouse on AWS using Python 3.13, Docker, and AWS SAM defined in a unified SAM template YAML file. The pipeline automatically ingests raw workbooks from Google Drive, parses visual spreadsheet layouts using `openpyxl`, extracts unstructured engineering context using Claude Haiku on Bedrock, and delivers clean datasets to Athena and QuickSight.
+I built an event driven Medallion Data Lakehouse on AWS using Python 3.13, Docker, and AWS SAM. The pipeline automatically ingests Excel workbooks from Google Drive, parses visual spreadsheet layouts with `openpyxl`, extracts engineering context using Claude Haiku on Amazon Bedrock, and loads clean Parquet datasets into Athena for reporting in QuickSight.
 
 ### Key Results
 
 * **Complete Portfolio Visibility:** Transformed 750 isolated Excel files into a centralized OLAP data lakehouse, enabling instant portfolio wide cost and regulatory reporting.
 
-* **Automated Budget Reconciliation:** Enabled precise tracking of actual spend versus original authorization budgets across all contractors, protecting ELM's management fee justification.
+* **Budget vs Actual Cost Reporting:** Enabled precise tracking of actual spend versus original authorization budgets across all contractors, protecting ELM's management fee justification.
 
 * **AI Powered Compliance Extraction:** Extracted critical downhole pressure test outcomes and regulatory numbers from unstructured daily field notes using Claude Haiku on AWS Bedrock.
 
@@ -86,7 +85,7 @@ The pipeline receives workbooks from Google Drive via AppFlow, processes raw fil
 ## Engineering Challenges & Solutions
 
 ### 1. The files are visual forms rather than structured spreadsheets
-* **The Challenge:** Field supervisors used Excel as a printed form layout tool rather than a database. Workbooks were built with merged cells, hand aligned labels, and tables that started at different row offsets depending on how much notes the previous supervisor typed. With six tabs per file and subtle undocumented variations across 750 files from different contractors, standard parsing with `pd.read_excel()` failed on file one.
+* **The Challenge:** Field supervisors used Excel as a printed form layout tool rather than a database. Workbooks were built with merged cells, hand aligned labels, and tables that started at different row offsets depending on how much notes the previous supervisor typed. Each workbook contained six tabs, and small layout differences accumulated over four years as different contractors filled them out. Standard tools like `pandas.read_excel()` broke almost immediately.
 
 * **The Solution:** Instead of assuming fixed row coordinates, I built an anchor based cell detection parser using `openpyxl`. The script scans for known label strings and reads neighboring cells at relative offsets to where the label was found. Section boundaries for charge tables and repeating line items are detected by keyword terminators rather than row counts. This handles layout shifts across files without breaking silently.
 
@@ -110,7 +109,7 @@ The pipeline receives workbooks from Google Drive via AppFlow, processes raw fil
 ### 3. Classifying Job & daily supervisor notes with Claude Haiku on Bedrock
 * **The Challenge:** The Main sheet and every daily sheet contains a free text section written by the field supervisor. These paragraphs hold the most operationally valuable details in the file, such as plug depths, pressure test outcomes, cement volumes, and equipment failures. Regex can pull numbers, but it cannot determine engineering context. For example, a supervisor note might say the well was pressured to 13 MPa to shear the setting tool, and then describe a separate pressure test on the next line at 7 MPa held for 15 minutes. Both entries contain a pressure value, but only one is a regulatory test result. That distinction is critical for compliance reporting and cannot be made reliably with pattern matching across hundreds of files written by different supervisors.
 
-* **The Solution:** I integrated Claude Haiku on AWS Bedrock inside Lambda 2. A structured prompt sends the daily free text summaries alongside the parsed Summary of Changes data. The model returns clean JSON per file containing classified well events, pressure test results with pass or fail flags, converted cement volumes, and AER regulatory numbers. Prompt engineering was the main effort here, specifically teaching the model the field specific distinction between tool shear pressure and a post set pressure test.
+* **The Solution:** I integrated Claude Haiku on AWS Bedrock inside Lambda 2. A structured prompt sends the daily free text summaries alongside the parsed Summary of Changes data. The model returns clean JSON per file containing classified well events, pressure test results with pass or fail flags, converted cement volumes, and AER regulatory numbers. Most of the work went into refining the prompt so the model could distinguish tool shear pressure from post set pressure tests.
 
 *Daily sheet note for Day 1 (left) and Main sheet note for all days (right)*
 <p float="left">
@@ -131,25 +130,16 @@ The pipeline receives workbooks from Google Drive via AppFlow, processes raw fil
 ### Athena Base Tables and Gold SQL Views
 AWS Glue catalogs the Silver Parquet datasets into 5 base tables in Athena. To normalize inconsistent formatting and join related operational data across tables, 5 Gold SQL views were created:
 
-1. **Cost by Supplier View:** Normalizes unit prices, item descriptions, and vendor names for cost tracking.
+1. **Cost by Supplier:** Contractor costs grouped by supplier.
 
-2. **Load Fluid Detail View:** Tracks fluid types, volumes, and disposal metrics across jobs.
+2. **Load Fluid Detail:** Fluid usage and disposal across wells.
 
-3. **Master Well Summary View:** Joins high level well identifiers, AER regulatory numbers, and execution dates.
+3. **Master Well Summary:** High level well information and project status.
 
-4. **Material Transfer Detail View:** Tracks equipment and material movements between well locations.
+4. **Material Transfer Detail:** Equipment and material transfers between well sites.
 
-5. **Plug and Cement Detail View:** Isolates regulatory compliance metrics, plug depths, and pressure test outcomes extracted by the LLM.
+5. **Plug and Cement Detail:** Plug depths, pressure test results, and compliance data.
 
 ### QuickSight Reporting
 Amazon QuickSight connects to the Gold Athena SQL views through the SPICE in memory calculation engine on a periodic refresh schedule. This isolates dashboard user traffic when filtering bar charts, cost trends, and compliance metrics from executing live S3 queries in Athena, keeping query costs low and load times fast.
 
----
-
-## Monitoring and Error Handling
-
-* **Dead Letter Queues (DLQs):** SQS Queue 1 and Queue 2 use DLQs to catch payloads that fail processing after maximum retry attempts.
-
-* **Alerting:** A CloudWatch metric alarm monitors DLQ depth and triggers an SNS email alert if a message lands in the DLQ.
-
-* **Redrive Strategy:** Failed files can be analyzed, fixed, and redriven directly out of the DLQ without re uploading source files from Google Drive.
